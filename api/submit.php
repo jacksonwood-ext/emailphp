@@ -11,7 +11,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 ));
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
-    "specification_hash" => "7f6d60dd479ca99fe25b348d6c5c823819343c72731e852f12de95b47afd2bba",
+    "specification_hash" => "184416db13e2c9b3412faff2993e2b50dbadafadcd583a4eee29281f03eaf953",
     "config" => array(
         "MODEL" => array(
             "provider_id" => "openai",
