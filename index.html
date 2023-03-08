@@ -1,46 +1,67 @@
-<?php
-$ch = curl_init();
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Email Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        const $form = $('form');
+        const $loading = $('.loading');
+        const $result = $('#result');
+        
+        $form.on('submit', function(event) {
+          event.preventDefault(); // Prevent the form from submitting automatically
+          $form.hide(); // Hide the form
+          $loading.show(); // Show the loading screen
+          $result.hide(); // Hide the result (if it was already shown)
+          
+          var formData = $(this).serialize(); // Serialize the form data
+          $.ajax({
+            type: 'POST',
+            url: 'api/submit.php',
+            data: formData,
+            timeout: 10000, // Set the timeout to 10 seconds
+            success: function(response) {
+              // Replace "\n" characters with "<br>" tags
+              const completionText = JSON.parse(response).run.results[0][0]["value"]["completion"]["text"];
+              const formattedText = completionText.replace(/\n/g, "<br>");
+              $result.html(JSON.stringify(formattedText));
+            },
+            error: function(xhr, status, error) {
+              console.log('Error:', error); // Log any errors
+              alert('An error occurred while submitting the form. Please try again later.');
+            },
+            complete: function(xhr, status) {
+              console.log('AJAX request complete.');
+              $loading.hide(); // Hide the loading screen
+              $result.show(); // Show the result
+              $form.show(); // Show the form again
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Email Generator</h1>
+      <form method="POST">
+        <label for="company_name">Company Name:</label>
+        <input type="text" name="company_name" id="company_name"><br><br>
 
+        <label for="url">URL:</label>
+        <input type="text" name="url" id="url"><br><br>
 
-$token = getenv('API_TOKEN');
+        <label for="your_name">Your Name:</label>
+        <input type="text" name="your_name" id="your_name"><br><br>
 
-curl_setopt($ch, CURLOPT_URL, "https://dust.tt/api/v1/apps/jacksonwood/593f566768/runs");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    "Authorization: Bearer $token",
-    "Content-Type: application/json"
-));
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
-    "specification_hash" => "184416db13e2c9b3412faff2993e2b50dbadafadcd583a4eee29281f03eaf953",
-    "config" => array(
-        "MODEL" => array(
-            "provider_id" => "openai",
-            "model_id" => "gpt-3.5-turbo",
-            "use_cache" => true
-        ),
-        "WEBCONTENT" => array(
-            "provider_id" => "browserlessapi",
-            "use_cache" => true,
-            "error_as_output" => false
-        )
-    ),
-    "blocking" => true,
-    "inputs" => array(
-        array(
-            "company_name" => $_POST['company_name'],
-            "url" => $_POST['url'],
-            "your_name" => $_POST['your_name']
-        )
-    )
-)));
+        <input type="submit" value="Submit">
+      </form>
 
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-$result = curl_exec($ch);
-
-if (curl_errno($ch)) {
-    echo 'Error:' . curl_error($ch);
-} else {
-    echo $result;
-}
-
-curl_close($ch);
+      <div class="loading" style="display: none;">Loading...</div> <!-- Loading screen -->
+      <div class="result" id="result" style="display: none;"></div> <!-- Result will be displayed here -->
+    </div>
+  </body>
+</html>
