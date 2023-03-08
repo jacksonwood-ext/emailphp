@@ -7,18 +7,27 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       $(document).ready(function() {
-        $('form').on('submit', function(event) {
+        const $form = $('form');
+        const $loading = $('.loading');
+        const $result = $('#result');
+        
+        $form.on('submit', function(event) {
           event.preventDefault(); // Prevent the form from submitting automatically
+          $form.hide(); // Hide the form
+          $loading.show(); // Show the loading screen
+          $result.hide(); // Hide the result (if it was already shown)
+          
           var formData = $(this).serialize(); // Serialize the form data
           $.ajax({
             type: 'POST',
             url: 'api/submit.php',
             data: formData,
+            timeout: 10000, // Set the timeout to 10 seconds
             success: function(response) {
               // Replace "\n" characters with "<br>" tags
               const completionText = JSON.parse(response).run.results[0][0]["value"]["completion"]["text"];
               const formattedText = completionText.replace(/\n/g, "<br>");
-              $('#result').html(JSON.stringify(formattedText));
+              $result.html(JSON.stringify(formattedText));
             },
             error: function(xhr, status, error) {
               console.log('Error:', error); // Log any errors
@@ -26,6 +35,9 @@
             },
             complete: function(xhr, status) {
               console.log('AJAX request complete.');
+              $loading.hide(); // Hide the loading screen
+              $result.show(); // Show the result
+              $form.show(); // Show the form again
             }
           });
         });
@@ -47,8 +59,9 @@
 
         <input type="submit" value="Submit">
       </form>
-      
-      <div class="result" id="result"></div> <!-- Result will be displayed here -->
+
+      <div class="loading" style="display: none;">Loading...</div> <!-- Loading screen -->
+      <div class="result" id="result" style="display: none;"></div> <!-- Result will be displayed here -->
     </div>
   </body>
 </html>
