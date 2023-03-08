@@ -16,7 +16,7 @@
             data: formData,
             success: function(response) {
               // Replace "\n" characters with "<br>" tags
-              $('#result').html(JSON.stringify(JSON.parse(response).run.results[0][0]["value"]["completion"]["text"]));
+              $('#result').html(JSON.stringify(JSON.parse(response)));
             },
             error: function(xhr, status, error) {
               console.log('Error:', error); // Log any errors
